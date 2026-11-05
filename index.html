@@ -106,6 +106,14 @@ body.scene-on #stars{display:none}
 .petal-fall{position:fixed;top:-20px;width:12px;height:16px;border-radius:70% 0 70% 0;background:linear-gradient(135deg,#ffc2d9,#ff6fa5);
   opacity:.8;pointer-events:none;z-index:4;animation:fall linear forwards}
 @keyframes fall{to{transform:translate(var(--dx),110vh) rotate(720deg);opacity:.2}}
+/* mensagem compacta: cabe na tela sem scroll */
+#msg{position:fixed;left:50%;top:calc((100vh - 84px)/2);top:calc((100dvh - 84px)/2);transform:translate(-50%,-50%);margin:0;
+  width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 110px);max-height:calc(100dvh - 110px);overflow-y:auto;
+  padding:clamp(16px,3vh,28px) clamp(16px,4vw,26px);transition:opacity 1s ease}
+#msg h2{font-size:clamp(30px,min(6.4vh,10vw),46px);margin-bottom:2px}
+#msg .date{font-size:11px;margin-bottom:clamp(8px,1.8vh,16px)}
+#msg p{font-size:clamp(14px,min(2.35vh,4.2vw),20px);line-height:1.42;margin-bottom:clamp(7px,1.5vh,13px)}
+#msg .sign{font-size:clamp(22px,4vh,28px);margin-top:4px}
 </style>
 </head>
 <body>
@@ -269,12 +277,10 @@ function openMsg(){
   m.querySelectorAll('p,.sign').forEach(e=>e.classList.add('show'));
   $('h2').classList.add('head-on');$('dt').classList.add('head-on');
   m.classList.add('on');
-  setTimeout(()=>m.scrollIntoView({behavior:'smooth',block:'start'}),300);
   if(!petalsOn){petalsOn=true;setInterval(fallingPetal,1500)}
 }
 function closeMsg(){
   $('msg').classList.remove('on');$('flowerWrap').classList.remove('dim');
-  $('scene').scrollTo({top:0,behavior:'smooth'});
   $('open').textContent='Ver mensagem de novo 💌';$('open').classList.remove('hide');
 }
 $('open').onclick=openMsg;
