@@ -28,6 +28,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 .num{font-family:'Jost',sans-serif;font-weight:500;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums;
   background:linear-gradient(135deg,var(--gold),#ff9ec4);-webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 0 24px rgba(255,126,179,.45))}
+.top{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:clamp(24px,6vw,34px);margin-bottom:14px;color:#ffd0e0}
 .lbl{margin-top:14px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:clamp(20px,5.2vw,30px);opacity:.9;
   min-height:1.3em;transition:opacity .6s}
 
@@ -47,8 +48,9 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 <div class="stage" id="intro"><p id="il"></p></div>
 
 <div class="stage" id="count">
-  <div class="num" id="num">1</div>
-  <div class="lbl" id="lbl">vezes eu te amo</div>
+  <div class="top" id="top">Meu amor por você</div>
+  <div class="num" id="num">1%</div>
+  <div class="lbl" id="lbl">calculando o quanto eu te amo…</div>
 </div>
 
 <section id="card">
@@ -65,7 +67,7 @@ const smooth=x=>{x=clamp(x);return x*x*(3-2*x)};
 let W,H,dpr,A,CX,CY;
 
 /* ---- linha do tempo (segundos) ---- */
-const T_L1=.6, T_L1_OFF=5.0, T_L2=6.2, T_L2_OFF=10.6, T_COUNT=11.8, COUNT_DUR=6.5, T_INF=T_COUNT+COUNT_DUR, T_CONV=T_INF+3.4, T_CARD=T_CONV+4.5;
+const T_L1=.6, T_L1_OFF=5.0, T_L2=6.2, T_L2_OFF=10.6, T_COUNT=11.8, COUNT_DUR=6.5, T_INF=T_COUNT+COUNT_DUR, T_CONV=T_INF+1.4, T_CARD=T_CONV+4.5;
 
 /* ---- infinito (lemniscata) ---- */
 const LX=u=>Math.cos(u)/(1+Math.sin(u)*Math.sin(u));
@@ -79,6 +81,8 @@ for(let i=0;i<N;i++)parts.push({
   u0:Math.random()*Math.PI*2,jx:rr(-1,1),jy:rr(-1,1),
   delay:rr(0,1.6),dur:rr(2.2,3.4),d1:rr(0,.5),hasT:false,tx:0,ty:0,s:rr(.6,1.6),ph:Math.random()*6.28,tw:rr(1.2,3),w:Math.random()
 });
+const aura=[],NA=innerWidth<600?170:260,gs=()=>(Math.random()+Math.random()+Math.random()-1.5)/1.5;
+for(let i=0;i<NA;i++)aura.push({u:Math.random()*6.2832,d:gs()*.13,osc:rr(.008,.025),sp:rr(.55,.95),ph:Math.random()*6.28,tw:rr(1,2.6),s:rr(.5,1.6),w:Math.random()});
 const stars=[];for(let i=0;i<110;i++)stars.push({x:Math.random(),y:Math.random(),s:rr(.4,1.3),ph:Math.random()*6.28,tw:rr(.8,2.2)});
 const hearts=[],shooters=[];
 function heartPath(x,y,s){
@@ -93,7 +97,7 @@ function layout(){
   W=innerWidth;H=innerHeight;
   for(const c of [bg,fx]){c.width=W*dpr;c.height=H*dpr}
   b.setTransform(dpr,0,0,dpr,0,0);f.setTransform(dpr,0,0,dpr,0,0);
-  A=Math.min(W*.44,H*.5);CX=W/2;
+  A=Math.min(W*.42,H*.5);CX=W/2;
   const card=$('card');card.style.top='0px';
   const th=card.offsetHeight,gap=Math.max(16,H*.03),hh=.71*A;
   const topY=Math.max(10,(H-(hh+gap+th))/2);
@@ -111,36 +115,27 @@ let phase=0;
 function steps(t){
   if(phase===0&&t>T_L1){phase=1;say('Você sempre me pergunta se eu te amo…');intro.classList.add('on')}
   if(phase===1&&t>T_L1_OFF){phase=2;intro.classList.remove('on')}
-  if(phase===2&&t>T_L2){phase=3;say('Então deixa eu te mostrar o tamanho.');intro.classList.add('on')}
+  if(phase===2&&t>T_L2){phase=3;say('Então deixa eu te mostrar o quanto eu te amo.');intro.classList.add('on')}
   if(phase===3&&t>T_L2_OFF){phase=4;intro.classList.remove('on')}
   if(phase===4&&t>T_COUNT){phase=5;cnt.classList.add('on')}
-  if(phase===5&&t>T_INF){phase=6;sampleText()}
-  if(phase===6&&t>T_INF+1.5){phase=7;cnt.style.transition='opacity .8s ease';cnt.classList.remove('on')}
-  if(phase===7&&t>T_CARD){phase=8;card.classList.add('on')}
+  if(phase===5&&t>T_INF){phase=6;cnt.style.transition='opacity 1s ease';cnt.classList.remove('on')}
+  if(phase===6&&t>T_CARD){phase=8;card.classList.add('on')}
 }
-/* o número vira estrelas: pega os pontos do texto e entrega pras partículas */
-function sampleText(){
-  const r=num.getBoundingClientRect(),cs=getComputedStyle(num);
-  const oc=document.createElement('canvas');oc.width=W;oc.height=H;
-  const o=oc.getContext('2d',{willReadFrequently:true});
-  o.fillStyle='#fff';o.font=`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-  o.textAlign='center';o.textBaseline='middle';
-  o.fillText(num.textContent,r.left+r.width/2,r.top+r.height/2);
-  const d=o.getImageData(0,0,W,H).data,fs=parseFloat(cs.fontSize),step=Math.max(2,Math.round(fs/20)),pts=[];
-  for(let y=0;y<H;y+=step)for(let x=0;x<W;x+=step)if(d[(y*W+x)*4+3]>128)pts.push([x,y]);
-  for(let i=pts.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[pts[i],pts[j]]=[pts[j],pts[i]]}
-  const n=Math.min(pts.length,parts.length);
-  for(let i=0;i<n;i++){parts[i].hasT=true;parts[i].tx=pts[i][0];parts[i].ty=pts[i][1]}
-}
+let lblIdx=0;
+const LBL=['calculando o quanto eu te amo…','100%? Nem de longe… é pouco demais 🥹','passou de qualquer limite…','não cabe em nenhum número…'];
 function counter(t){
   if(phase!==5)return;
-  const x=clamp((t-T_COUNT)/COUNT_DUR);
-  const v=Math.floor(Math.pow(10,15*Math.pow(x,.95)));
-  const s=v.toLocaleString('pt-BR');
+  const x=clamp((t-T_COUNT)/COUNT_DUR),xa=.3;
+  let v=x<xa?1+99*(x/xa):Math.pow(10,2+13*Math.pow((x-xa)/(1-xa),.9));   // 1% → 100% → muito além
+  v=Math.floor(v);
+  const s=v.toLocaleString('pt-BR')+'%';
   num.textContent=s;
-  num.style.fontSize=Math.min(88,W*.92/(s.length*.6))+'px';
-  const want=x>.55?'e eu não consigo parar de contar…':'vezes eu te amo';
-  if(lbl.textContent!==want)lbl.textContent=want;
+  num.style.fontSize=Math.min(88,W*.92/(s.length*.62))+'px';
+  const idx=v<100?0:v<1000?1:v<1e9?2:3;
+  if(idx!==lblIdx){
+    lblIdx=idx;lbl.style.opacity=0;
+    setTimeout(()=>{lbl.textContent=LBL[idx];lbl.style.opacity=.9},350);
+  }
 }
 
 addEventListener('pointerdown',e=>{
@@ -168,7 +163,7 @@ function frame(now){
     b.strokeStyle=g;b.lineWidth=1.6;b.shadowColor='rgba(255,120,170,.85)';b.shadowBlur=14;
     b.beginPath();
     for(let k=0;k<=180;k++){const u=k/180*6.2832,x=CX+A*LX(u),y=CY+A*LY(u);k?b.lineTo(x,y):b.moveTo(x,y)}
-    b.closePath();b.stroke();b.restore();
+    b.closePath();b.stroke();b.lineWidth=9;b.shadowBlur=0;b.strokeStyle='rgba(255,126,179,'+(.07*formed)+')';b.stroke();b.restore();
   }
   if(phase>=5&&T>nextHeart){nextHeart=T+rr(.6,1.2);spawnHeart(rr(0,W),H+10)}
   for(let i=hearts.length-1;i>=0;i--){
@@ -205,6 +200,24 @@ function frame(now){
     const a=clamp(.3+.6*(Math.sin(T*p.tw+p.ph)*.5+.5))*(e>.99?.85:1)+(e1*(1-e))*.4;
     f.fillStyle=`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
     f.beginPath();f.arc(x,y,p.s*(1+e*.2+e1*(1-e)*.5),0,6.283);f.fill();
+  }
+  /* aura de estrelas ao redor do infinito */
+  const af=smooth((t-T_CONV-1.2)/3);
+  if(af>0){
+    for(const q of aura){
+      const u=q.u+(t-T_CONV)*speed*q.sp;
+      const dx=LX(u+.01)-LX(u-.01),dy=LY(u+.01)-LY(u-.01),L=Math.hypot(dx,dy)||1;
+      const dd=(q.d+Math.sin(T*.8+q.ph)*q.osc)*A;
+      const x=CX+A*LX(u)+(-dy/L)*dd,y=CY+A*LY(u)+(dx/L)*dd;
+      const a=(.15+.55*(Math.sin(T*q.tw+q.ph)*.5+.5))*af;
+      const c=mix(mix(PINK,GOLD,q.w),WHITE,.4);
+      f.fillStyle=`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
+      f.beginPath();f.arc(x,y,q.s,0,6.283);f.fill();
+      if(q.s>1.25){
+        f.strokeStyle=`rgba(255,240,248,${a*.7})`;f.lineWidth=.7;const l=q.s*3.2;
+        f.beginPath();f.moveTo(x-l,y);f.lineTo(x+l,y);f.moveTo(x,y-l);f.lineTo(x,y+l);f.stroke();
+      }
+    }
   }
   requestAnimationFrame(frame);
 }
