@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Amanda, meu amor é infinito ♾️</title>
+<meta name="description" content="O tamanho do meu amor por você">
+<meta name="theme-color" content="#05060f">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%BE%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Dancing+Script:wght@600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--rose:#ff7eb3;--gold:#ffd98a;--cream:#fff3f0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;height:100dvh;overflow:hidden}
+body{font-family:'Jost',system-ui,sans-serif;color:var(--cream);touch-action:manipulation;
+  background:radial-gradient(120% 90% at 50% 105%,#3d1248 0%,#170b2c 50%,#05060f 100%)}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+#bg{z-index:0}#fx{z-index:1}
+
+.stage{position:fixed;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:24px;opacity:0;transition:opacity 1.1s ease;pointer-events:none}
+.stage.on{opacity:1}
+#il{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(26px,7.4vw,46px);line-height:1.2;
+  max-width:16em;text-shadow:0 4px 30px rgba(0,0,0,.6)}
+.num{font-family:'Jost',sans-serif;font-weight:500;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums;
+  background:linear-gradient(135deg,var(--gold),#ff9ec4);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 24px rgba(255,126,179,.45))}
+.lbl{margin-top:14px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;font-size:clamp(20px,5.2vw,30px);opacity:.9;
+  min-height:1.3em;transition:opacity .6s}
+
+#card{position:fixed;left:50%;transform:translateX(-50%);z-index:2;width:min(560px,calc(100vw - 24px));text-align:center;
+  padding:0 8px;opacity:0;pointer-events:none;transition:opacity 2.2s ease}
+#card.on{opacity:1}
+#card h2{font-family:'Dancing Script',cursive;color:var(--gold);font-weight:600;font-size:clamp(34px,min(7.4vh,10.5vw),60px);line-height:1.1;
+  text-shadow:0 4px 30px rgba(0,0,0,.6)}
+#card p{margin-top:clamp(8px,1.6vh,14px);font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;
+  font-size:clamp(18px,min(3vh,5vw),26px);color:#ffd0e0;text-shadow:0 2px 14px rgba(0,0,0,.5)}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<canvas id="fx"></canvas>
+
+<div class="stage" id="intro"><p id="il"></p></div>
+
+<div class="stage" id="count">
+  <div class="num" id="num">1</div>
+  <div class="lbl" id="lbl">vezes eu te amo</div>
+</div>
+
+<section id="card">
+  <h2>Meu amor por você é infinito</h2>
+  <p>Não tem começo, não tem fim… é todo seu 💛</p>
+</section>
+
+<script>
+const $=id=>document.getElementById(id);
+const bg=$('bg'),b=bg.getContext('2d'),fx=$('fx'),f=fx.getContext('2d');
+const rr=(a,c)=>a+Math.random()*(c-a);
+const clamp=(x,a=0,c=1)=>Math.min(c,Math.max(a,x));
+const smooth=x=>{x=clamp(x);return x*x*(3-2*x)};
+let W,H,dpr,A,CX,CY;
+
+/* ---- linha do tempo (segundos) ---- */
+const T_L1=.6, T_L1_OFF=5.0, T_L2=6.2, T_L2_OFF=10.6, T_COUNT=11.8, COUNT_DUR=6.5, T_INF=T_COUNT+COUNT_DUR, T_CONV=T_INF+3.4, T_CARD=T_CONV+4.5;
+
+/* ---- infinito (lemniscata) ---- */
+const LX=u=>Math.cos(u)/(1+Math.sin(u)*Math.sin(u));
+const LY=u=>Math.sin(u)*Math.cos(u)/(1+Math.sin(u)*Math.sin(u));
+const PINK=[255,126,179],GOLD=[255,214,150],WHITE=[255,240,248];
+const mix=(a,c,t)=>[a[0]+(c[0]-a[0])*t,a[1]+(c[1]-a[1])*t,a[2]+(c[2]-a[2])*t];
+const N=innerWidth<600?480:650;
+const parts=[];
+for(let i=0;i<N;i++)parts.push({
+  x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:rr(-.12,.12),vy:rr(-.1,.1),
+  u0:Math.random()*Math.PI*2,jx:rr(-1,1),jy:rr(-1,1),
+  delay:rr(0,1.6),dur:rr(2.2,3.4),d1:rr(0,.5),hasT:false,tx:0,ty:0,s:rr(.6,1.6),ph:Math.random()*6.28,tw:rr(1.2,3),w:Math.random()
+});
+const stars=[];for(let i=0;i<110;i++)stars.push({x:Math.random(),y:Math.random(),s:rr(.4,1.3),ph:Math.random()*6.28,tw:rr(.8,2.2)});
+const hearts=[],shooters=[];
+function heartPath(x,y,s){
+  b.beginPath();b.moveTo(x,y+s*.9);
+  b.bezierCurveTo(x-s*1.2,y+s*.1,x-s*.7,y-s*.9,x,y-s*.35);
+  b.bezierCurveTo(x+s*.7,y-s*.9,x+s*1.2,y+s*.1,x,y+s*.9);b.closePath();
+}
+function spawnHeart(x,y,o){hearts.push(Object.assign({x,y,s:rr(5,12),vx:rr(-.3,.3),vy:-rr(.5,1.1),life:1,dec:rr(.002,.004),sw:rr(0,6.28),a:.65},o||{}))}
+
+function layout(){
+  dpr=Math.min(devicePixelRatio||1,1.5);
+  W=innerWidth;H=innerHeight;
+  for(const c of [bg,fx]){c.width=W*dpr;c.height=H*dpr}
+  b.setTransform(dpr,0,0,dpr,0,0);f.setTransform(dpr,0,0,dpr,0,0);
+  A=Math.min(W*.44,H*.5);CX=W/2;
+  const card=$('card');card.style.top='0px';
+  const th=card.offsetHeight,gap=Math.max(16,H*.03),hh=.71*A;
+  const topY=Math.max(10,(H-(hh+gap+th))/2);
+  CY=topY+hh/2;
+  card.style.top=(CY+hh/2+gap)+'px';
+}
+addEventListener('resize',layout);layout();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(layout);
+
+/* ---- textos ---- */
+const il=$('il'),intro=$('intro'),cnt=$('count'),num=$('num'),lbl=$('lbl'),card=$('card');
+function say(text){il.textContent=text}
+const T0=performance.now();
+let phase=0;
+function steps(t){
+  if(phase===0&&t>T_L1){phase=1;say('Você sempre me pergunta se eu te amo…');intro.classList.add('on')}
+  if(phase===1&&t>T_L1_OFF){phase=2;intro.classList.remove('on')}
+  if(phase===2&&t>T_L2){phase=3;say('Então deixa eu te mostrar o tamanho.');intro.classList.add('on')}
+  if(phase===3&&t>T_L2_OFF){phase=4;intro.classList.remove('on')}
+  if(phase===4&&t>T_COUNT){phase=5;cnt.classList.add('on')}
+  if(phase===5&&t>T_INF){phase=6;sampleText()}
+  if(phase===6&&t>T_INF+1.5){phase=7;cnt.style.transition='opacity .8s ease';cnt.classList.remove('on')}
+  if(phase===7&&t>T_CARD){phase=8;card.classList.add('on')}
+}
+/* o número vira estrelas: pega os pontos do texto e entrega pras partículas */
+function sampleText(){
+  const r=num.getBoundingClientRect(),cs=getComputedStyle(num);
+  const oc=document.createElement('canvas');oc.width=W;oc.height=H;
+  const o=oc.getContext('2d',{willReadFrequently:true});
+  o.fillStyle='#fff';o.font=`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  o.textAlign='center';o.textBaseline='middle';
+  o.fillText(num.textContent,r.left+r.width/2,r.top+r.height/2);
+  const d=o.getImageData(0,0,W,H).data,fs=parseFloat(cs.fontSize),step=Math.max(2,Math.round(fs/20)),pts=[];
+  for(let y=0;y<H;y+=step)for(let x=0;x<W;x+=step)if(d[(y*W+x)*4+3]>128)pts.push([x,y]);
+  for(let i=pts.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[pts[i],pts[j]]=[pts[j],pts[i]]}
+  const n=Math.min(pts.length,parts.length);
+  for(let i=0;i<n;i++){parts[i].hasT=true;parts[i].tx=pts[i][0];parts[i].ty=pts[i][1]}
+}
+function counter(t){
+  if(phase!==5)return;
+  const x=clamp((t-T_COUNT)/COUNT_DUR);
+  const v=Math.floor(Math.pow(10,15*Math.pow(x,.95)));
+  const s=v.toLocaleString('pt-BR');
+  num.textContent=s;
+  num.style.fontSize=Math.min(88,W*.92/(s.length*.6))+'px';
+  const want=x>.55?'e eu não consigo parar de contar…':'vezes eu te amo';
+  if(lbl.textContent!==want)lbl.textContent=want;
+}
+
+addEventListener('pointerdown',e=>{
+  if(phase<5)return;
+  for(let i=0;i<12;i++){const a=rr(0,6.28),v=rr(.6,2.2);
+    spawnHeart(e.clientX,e.clientY,{vx:Math.cos(a)*v,vy:Math.sin(a)*v-.8,s:rr(6,13),dec:rr(.008,.014),a:.9})}
+});
+
+let nextHeart=0,nextShoot=3;
+function frame(now){
+  const t=(now-T0)/1000,T=now/1000;
+  steps(t);counter(t);
+
+  /* fundo: estrelinhas, brilho, corações, estrelas cadentes */
+  b.clearRect(0,0,W,H);b.globalCompositeOperation='lighter';
+  for(const s of stars){
+    const a=.25+.35*(Math.sin(T*s.tw+s.ph)*.5+.5);
+    b.fillStyle=`rgba(255,240,250,${a})`;b.beginPath();b.arc(s.x*W,s.y*H,s.s,0,6.283);b.fill();
+  }
+  const formed=smooth((t-T_CONV-.6)/2.5);
+  if(formed>0){
+    b.save();
+    const g=b.createLinearGradient(CX-A,0,CX+A,0),q=.5*formed;
+    g.addColorStop(0,`rgba(255,126,179,${q})`);g.addColorStop(.5,`rgba(255,214,150,${q})`);g.addColorStop(1,`rgba(255,126,179,${q})`);
+    b.strokeStyle=g;b.lineWidth=1.6;b.shadowColor='rgba(255,120,170,.85)';b.shadowBlur=14;
+    b.beginPath();
+    for(let k=0;k<=180;k++){const u=k/180*6.2832,x=CX+A*LX(u),y=CY+A*LY(u);k?b.lineTo(x,y):b.moveTo(x,y)}
+    b.closePath();b.stroke();b.restore();
+  }
+  if(phase>=5&&T>nextHeart){nextHeart=T+rr(.6,1.2);spawnHeart(rr(0,W),H+10)}
+  for(let i=hearts.length-1;i>=0;i--){
+    const h=hearts[i];h.x+=h.vx+Math.sin(T*1.5+h.sw)*.25;h.y+=h.vy;h.life-=h.dec;
+    if(h.life<=0||h.y<-20){hearts.splice(i,1);continue}
+    b.fillStyle=`rgba(255,130,175,${h.a*Math.min(1,h.life*1.5)})`;heartPath(h.x,h.y,h.s);b.fill();
+  }
+  if(phase>=5&&T>nextShoot){nextShoot=T+rr(3,6);shooters.push({x:rr(W*.3,W),y:rr(0,H*.25),life:1})}
+  for(let i=shooters.length-1;i>=0;i--){
+    const s=shooters[i];s.x-=9;s.y+=4;s.life-=.02;
+    if(s.life<=0){shooters.splice(i,1);continue}
+    const g=b.createLinearGradient(s.x,s.y,s.x+70,s.y-31);
+    g.addColorStop(0,`rgba(255,255,255,${s.life})`);g.addColorStop(1,'rgba(255,255,255,0)');
+    b.strokeStyle=g;b.lineWidth=1.6;b.beginPath();b.moveTo(s.x,s.y);b.lineTo(s.x+70,s.y-31);b.stroke();
+  }
+
+  /* estrelas que se juntam e correm pelo infinito (com rastro) */
+  f.globalCompositeOperation='destination-out';f.fillStyle='rgba(0,0,0,.22)';f.fillRect(0,0,W,H);
+  f.globalCompositeOperation='lighter';
+  const speed=.38,thick=Math.max(1.2,A*.008);
+  for(const p of parts){
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=W;else if(p.x>W)p.x=0;
+    if(p.y<0)p.y=H;else if(p.y>H)p.y=0;
+    let x=p.x,y=p.y,e1=0;
+    if(p.hasT&&t>T_INF){e1=smooth((t-T_INF-p.d1)/.9);x=p.x+(p.tx-p.x)*e1;y=p.y+(p.ty-p.y)*e1}
+    const e=t>T_CONV?smooth((t-T_CONV-p.delay)/p.dur):0;
+    if(e>0){
+      const u=p.u0+(t-T_CONV)*speed;
+      const tx=CX+A*LX(u)+p.jx*thick,ty=CY+A*LY(u)+p.jy*thick;
+      x+=(tx-x)*e;y+=(ty-y)*e;
+    }
+    const c=mix(mix(PINK,GOLD,p.w),WHITE,e>.99?p.w*.35:0);
+    const a=clamp(.3+.6*(Math.sin(T*p.tw+p.ph)*.5+.5))*(e>.99?.85:1)+(e1*(1-e))*.4;
+    f.fillStyle=`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
+    f.beginPath();f.arc(x,y,p.s*(1+e*.2+e1*(1-e)*.5),0,6.283);f.fill();
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
