@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>2 meses com você 💗</title>
+<title>Amanda, 2 meses com você 💗</title>
 <meta name="description" content="Uma surpresa de 2 meses">
 <meta name="theme-color" content="#05060f">
 <meta name="robots" content="noindex,nofollow">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%97%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Dancing+Script:wght@600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Dancing+Script:wght@600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg1:#05060f; --bg2:#0d0a22; --bg3:#26103a;
@@ -114,6 +114,10 @@ body.scene-on #stars{display:none}
 #msg .date{font-size:11px;margin-bottom:clamp(8px,1.8vh,16px)}
 #msg p{font-size:clamp(14px,min(2.35vh,4.2vw),20px);line-height:1.42;margin-bottom:clamp(7px,1.5vh,13px)}
 #msg .sign{font-size:clamp(22px,4vh,28px);margin-top:4px}
+/* ajuste fino para celular */
+#msg{top:calc((100vh - 84px)/2);top:calc((100dvh - 84px - env(safe-area-inset-bottom))/2);
+  max-height:calc(100vh - 100px);max-height:calc(100dvh - 100px - env(safe-area-inset-bottom))}
+#msg p{font-weight:500;font-size:var(--fs,clamp(14px,min(2.2vh,4vw),20px));line-height:1.38;margin-bottom:clamp(6px,1.3vh,12px)}
 </style>
 </head>
 <body>
@@ -123,6 +127,7 @@ body.scene-on #stars{display:none}
 <section class="screen on" id="intro">
   <div class="card">
     <div class="heart-pulse">💗</div>
+    <div class="script" style="font-size:28px;margin-top:2px">Para a Amanda</div>
     <h1>Amor, eu preparei<br>uma coisinha pra você</h1>
     <p class="sub">Mas antes, um quiz rapidinho.<br>Prometo que é fácil… <span style="opacity:.7">quase.</span></p>
     <button class="btn" id="start">Vamos lá</button>
@@ -155,7 +160,7 @@ body.scene-on #stars{display:none}
   <div id="msg">
     <button id="back" aria-label="Voltar pra flor">✕</button>
     <h2 id="h2">Feliz 2 meses</h2>
-    <div class="date" id="dt">hoje &nbsp;·&nbsp; para você</div>
+    <div class="date" id="dt">hoje &nbsp;·&nbsp; para a Amanda</div>
     <p>Amor, hoje a gente completa 2 meses, e eu queria que você soubesse que você foi a melhor escolha que eu já fiz.</p>
     <p>Você deixou a minha vida mais feliz, mais leve, mais bonita. Do seu lado, até os dias comuns viram dias bons.</p>
     <p>Eu sei que ainda não sou perfeito, e sinto muito pelas vezes em que falho. Mas eu me esforço todos os dias pra ser alguém melhor, porque você merece o meu melhor.</p>
@@ -269,6 +274,13 @@ function reveal(from){
   document.body.classList.add('scene-on');
   setTimeout(()=>Flower.start(()=>$('bar').classList.add('on')),900);
 }
+function fitMsg(){
+  const m=$('msg');m.style.removeProperty('--fs');
+  let fs=parseFloat(getComputedStyle(m.querySelector('p')).fontSize),i=0;
+  while(m.scrollHeight>m.clientHeight+1&&fs>10.5&&i++<40){fs-=.5;m.style.setProperty('--fs',fs+'px')}
+}
+addEventListener('resize',fitMsg);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitMsg);
 let petalsOn=false;
 function openMsg(){
   $('open').classList.add('hide');
@@ -277,6 +289,7 @@ function openMsg(){
   m.querySelectorAll('p,.sign').forEach(e=>e.classList.add('show'));
   $('h2').classList.add('head-on');$('dt').classList.add('head-on');
   m.classList.add('on');
+  fitMsg();
   if(!petalsOn){petalsOn=true;setInterval(fallingPetal,1500)}
 }
 function closeMsg(){
