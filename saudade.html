@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Amanda, tô com muita saudade 💗</title>
+<meta name="description" content="Uma mensagem de saudade">
+<meta name="theme-color" content="#05060f">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%97%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Dancing+Script:wght@600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--rose:#ff7eb3;--gold:#ffd98a;--cream:#fff3f0;--line:rgba(255,255,255,.18)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;height:100dvh;overflow:hidden}
+body{font-family:'Jost',system-ui,sans-serif;color:var(--cream);touch-action:manipulation;
+  background:radial-gradient(120% 90% at 50% 105%,#3d1248 0%,#170b2c 50%,#05060f 100%)}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+
+#intro{position:fixed;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  text-align:center;padding:24px;transition:opacity 1.3s ease,visibility 1.3s}
+#intro.off{opacity:0;visibility:hidden;pointer-events:none}
+.to{font-family:'Dancing Script',cursive;color:var(--gold);font-size:clamp(26px,7vw,34px)}
+#intro h1{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(32px,9vw,52px);line-height:1.12;text-shadow:0 4px 30px rgba(0,0,0,.6)}
+#intro p{font-weight:300;opacity:.8;font-size:15px}
+.btn{font:500 16px 'Jost',sans-serif;color:#2a0f2e;background:linear-gradient(135deg,var(--gold),#ffb3c8);border:0;border-radius:999px;
+  padding:15px 34px;cursor:pointer;box-shadow:0 8px 28px rgba(255,126,179,.4);transition:transform .2s;margin-top:6px}
+.btn:active{transform:scale(.96)}
+.pulse{animation:beat 1.6s infinite;display:inline-block;font-size:44px}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.2)}30%{transform:scale(1)}45%{transform:scale(1.14)}}
+
+#card{position:fixed;left:50%;transform:translateX(-50%);z-index:2;width:min(560px,calc(100vw - 24px));
+  text-align:center;overflow-y:auto;padding:clamp(14px,2.6vh,26px) clamp(16px,4vw,26px);border-radius:26px;
+  background:none;border:0;opacity:0;pointer-events:none;transition:opacity 1.8s ease}
+#card.on{opacity:1;pointer-events:auto}
+#card h2{font-family:'Dancing Script',cursive;color:var(--gold);font-weight:600;font-size:clamp(38px,min(8vh,12vw),64px);line-height:1.1;margin-bottom:clamp(10px,2vh,18px);text-shadow:0 4px 30px rgba(0,0,0,.6)}
+#card .since{font-weight:300;font-size:12px;letter-spacing:.22em;text-transform:uppercase;opacity:.75;margin-bottom:6px}
+.count{display:flex;justify-content:center;gap:clamp(8px,2.5vw,14px);margin-bottom:clamp(8px,1.8vh,14px)}
+.cb{min-width:clamp(68px,22vw,92px);padding:clamp(6px,1.2vh,10px) 8px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid var(--line)}
+.cb b{display:block;font-family:'Jost',sans-serif;font-weight:500;font-size:clamp(22px,min(4vh,7vw),30px);color:var(--gold);line-height:1.1;font-variant-numeric:tabular-nums}
+.cb span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+#card p{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:var(--fs,clamp(15px,min(2.3vh,4.2vw),21px));
+  line-height:1.4;margin-bottom:clamp(7px,1.4vh,12px);text-shadow:0 2px 12px rgba(0,0,0,.4)}
+#card p.em{font-style:italic;color:#ffd0e0}
+#card .sign{font-family:'Dancing Script',cursive;color:var(--rose);font-size:clamp(24px,4vh,30px);margin-top:2px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<section id="intro">
+  <div class="pulse">💗</div>
+  <h1>Amor,<br>olha pro céu comigo</h1>
+  <p>Tem uma coisa que eu queria te dizer…</p>
+</section>
+
+<section id="card" aria-live="polite">
+  <h2>Tô com muita saudade</h2>
+</section>
+
+<script>
+const $=id=>document.getElementById(id);
+const cv=$('c'),ctx=cv.getContext('2d');
+const rr=(a,b)=>a+Math.random()*(b-a);
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const smooth=x=>{x=clamp(x);return x*x*(3-2*x)};
+let W,H,dpr,S,CX,CY,started=false,t0=0;
+
+/* coração: x ∈ [-16,16], y ∈ [-12,17] */
+const HX=t=>16*Math.pow(Math.sin(t),3);
+const HY=t=>-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
+
+const COLORS=[[255,126,179],[255,160,200],[255,255,255],[255,214,160],[255,100,150]];
+const N=innerWidth<600?650:950;
+const parts=[];
+for(let i=0;i<N;i++){
+  const t=Math.random()*Math.PI*2,outline=Math.random()<.6;
+  const r=outline?1+(Math.random()-.5)*.05:Math.sqrt(Math.random())*.93;
+  parts.push({
+    x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+    vx:rr(-.12,.12),vy:rr(-.1,.1),
+    hx:HX(t)*r,hy:HY(t)*r,
+    delay:rr(0,1.8),dur:rr(2.2,3.6),
+    s:rr(.7,2.1),c:COLORS[Math.random()*COLORS.length|0],ph:Math.random()*6.28,tw:rr(1.2,3)
+  });
+}
+const bg=[];for(let i=0;i<110;i++)bg.push({x:Math.random(),y:Math.random(),s:rr(.4,1.3),ph:Math.random()*6.28,tw:rr(.8,2.2)});
+
+const hearts=[],shooters=[];
+function heartPath(x,y,s){
+  ctx.beginPath();
+  ctx.moveTo(x,y+s*.9);
+  ctx.bezierCurveTo(x-s*1.2,y+s*.1,x-s*.7,y-s*.9,x,y-s*.35);
+  ctx.bezierCurveTo(x+s*.7,y-s*.9,x+s*1.2,y+s*.1,x,y+s*.9);
+  ctx.closePath();
+}
+function spawnHeart(x,y,o){
+  hearts.push(Object.assign({x,y,s:rr(5,12),vx:rr(-.3,.3),vy:-rr(.5,1.1),life:1,dec:rr(.002,.004),sw:rr(0,6.28),a:.65},o||{}));
+}
+
+function layout(){
+  dpr=Math.min(devicePixelRatio||1,1.5);
+  W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+  S=Math.min(W*.8/32,H*.4/29);CX=W/2;
+  const card=$('card');card.style.top='0px';
+  const th=card.offsetHeight,gap=Math.max(14,H*.025);
+  const topY=Math.max(10,(H-(29*S+gap+th))/2);   // coração + título centralizados na tela
+  CY=topY+12*S;
+  card.style.top=(CY+17*S+gap)+'px';
+}
+function fit(){}
+addEventListener('resize',layout);
+layout();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(layout);
+
+function start(){
+  if(started)return;
+  $('intro').classList.add('off');
+  started=true;t0=performance.now();
+  setTimeout(()=>{$('card').classList.add('on');fit()},3800);
+}
+setTimeout(start,3800);
+addEventListener('pointerdown',e=>{
+  if(!started||e.target.closest('button'))return;
+  for(let i=0;i<12;i++){const a=rr(0,6.28),v=rr(.6,2.2);
+    spawnHeart(e.clientX,e.clientY,{vx:Math.cos(a)*v,vy:Math.sin(a)*v-.8,s:rr(6,13),dec:rr(.008,.014),a:.9})}
+});
+
+let nextHeart=0,nextShoot=2;
+function frame(now){
+  const t=(now-t0)/1000,T=now/1000;
+  ctx.clearRect(0,0,W,H);
+  ctx.globalCompositeOperation='lighter';
+
+  // estrelinhas de fundo
+  for(const b of bg){
+    const a=.25+.35*(Math.sin(T*b.tw+b.ph)*.5+.5);
+    ctx.fillStyle=`rgba(255,240,250,${a})`;ctx.beginPath();ctx.arc(b.x*W,b.y*H,b.s,0,6.283);ctx.fill();
+  }
+
+  // brilho atrás do coração
+  const formed=started?smooth((t-2.2)/2.5):0;
+  if(formed>0){
+    const g=ctx.createRadialGradient(CX,CY+2*S,0,CX,CY+2*S,S*26);
+    g.addColorStop(0,`rgba(255,100,160,${.22*formed})`);g.addColorStop(1,'rgba(255,100,160,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  }
+
+  // estrelas que viram coração
+  const beat=started&&t>3?Math.pow(Math.sin(T*2.8)*.5+.5,5)*.055:0;
+  for(const p of parts){
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=W;else if(p.x>W)p.x=0;
+    if(p.y<0)p.y=H;else if(p.y>H)p.y=0;
+    let x=p.x,y=p.y;
+    const e=started?smooth((t-p.delay)/p.dur):0;
+    if(e>0){
+      const k=1+beat,tx=CX+p.hx*S*k+Math.sin(T*2+p.ph)*.5,ty=CY+p.hy*S*k+Math.cos(T*1.7+p.ph)*.5;
+      x=x+(tx-x)*e;y=y+(ty-y)*e;
+    }
+    const a=clamp(.35+.65*(Math.sin(T*p.tw+p.ph)*.5+.5));
+    ctx.fillStyle=`rgba(${p.c[0]},${p.c[1]},${p.c[2]},${a})`;
+    ctx.beginPath();ctx.arc(x,y,p.s*(1+e*.15),0,6.283);ctx.fill();
+  }
+
+  // corações subindo
+  if(started&&t>3&&T>nextHeart){nextHeart=T+rr(.5,1);spawnHeart(rr(0,W),H+10)}
+  for(let i=hearts.length-1;i>=0;i--){
+    const h=hearts[i];h.x+=h.vx+Math.sin(T*1.5+h.sw)*.25;h.y+=h.vy;h.life-=h.dec;
+    if(h.life<=0||h.y<-20){hearts.splice(i,1);continue}
+    ctx.fillStyle=`rgba(255,130,175,${h.a*Math.min(1,h.life*1.5)})`;
+    heartPath(h.x,h.y,h.s);ctx.fill();
+  }
+
+  // estrela cadente
+  if(started&&T>nextShoot){nextShoot=T+rr(3,6);shooters.push({x:rr(W*.3,W),y:rr(0,H*.25),life:1})}
+  for(let i=shooters.length-1;i>=0;i--){
+    const s=shooters[i];s.x-=9;s.y+=4;s.life-=.02;
+    if(s.life<=0){shooters.splice(i,1);continue}
+    const g=ctx.createLinearGradient(s.x,s.y,s.x+70,s.y-31);
+    g.addColorStop(0,`rgba(255,255,255,${s.life})`);g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.strokeStyle=g;ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(s.x+70,s.y-31);ctx.stroke();
+  }
+  requestAnimationFrame(frame);
+}
+t0=performance.now();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
