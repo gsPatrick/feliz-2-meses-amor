@@ -55,7 +55,7 @@ canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
 
 <section id="card">
   <h2>Meu amor por você é infinito</h2>
-  <p>Não tem começo, não tem fim… é todo seu 💛</p>
+  <p>Eu vou te amar pra sempre.<br>Não consigo viver sem você, minha princesa 💛</p>
 </section>
 
 <script>
@@ -67,7 +67,8 @@ const smooth=x=>{x=clamp(x);return x*x*(3-2*x)};
 let W,H,dpr,A,CX,CY;
 
 /* ---- linha do tempo (segundos) ---- */
-const T_L1=.6, T_L1_OFF=5.0, T_L2=6.2, T_L2_OFF=10.6, T_COUNT=11.8, COUNT_DUR=6.5, T_INF=T_COUNT+COUNT_DUR, T_CONV=T_INF+1.4, T_CARD=T_CONV+4.5;
+const T_L1=.6, T_L1_OFF=5.0, T_L2=6.2, T_L2_OFF=10.6, T_COUNT=11.8, COUNT_DUR=15.5, T_INF=T_COUNT+COUNT_DUR, T_CONV=T_INF+1.4, T_CARD=T_CONV+4.5;
+const T_EXP=T_CONV+5.5;   // depois que o infinito se forma: a aura se expande e o céu se enche de estrelas
 
 /* ---- infinito (lemniscata) ---- */
 const LX=u=>Math.cos(u)/(1+Math.sin(u)*Math.sin(u));
@@ -83,6 +84,10 @@ for(let i=0;i<N;i++)parts.push({
 });
 const aura=[],NA=innerWidth<600?170:260,gs=()=>(Math.random()+Math.random()+Math.random()-1.5)/1.5;
 for(let i=0;i<NA;i++)aura.push({u:Math.random()*6.2832,d:gs()*.13,osc:rr(.008,.025),sp:rr(.55,.95),ph:Math.random()*6.28,tw:rr(1,2.6),s:rr(.5,1.6),w:Math.random()});
+const aura2=[],NA2=innerWidth<600?150:230;
+for(let i=0;i<NA2;i++)aura2.push({u:Math.random()*6.2832,d:gs()*.55,osc:rr(.02,.05),sp:rr(.3,.7),ph:Math.random()*6.28,tw:rr(1,2.6),s:rr(.5,1.5),w:Math.random()});
+const sky=[],NS=innerWidth<600?170:280;
+for(let i=0;i<NS;i++)sky.push({x:Math.random(),y:Math.random(),s:rr(.5,1.7),ph:Math.random()*6.28,tw:rr(.8,2.4),delay:rr(0,3.6),w:Math.random()});
 const stars=[];for(let i=0;i<110;i++)stars.push({x:Math.random(),y:Math.random(),s:rr(.4,1.3),ph:Math.random()*6.28,tw:rr(.8,2.2)});
 const hearts=[],shooters=[];
 function heartPath(x,y,s){
@@ -125,13 +130,15 @@ let lblIdx=0;
 const LBL=['calculando o quanto eu te amo…','100%? Nem de longe… é pouco demais 🥹','passou de qualquer limite…','não cabe em nenhum número…'];
 function counter(t){
   if(phase!==5)return;
-  const x=clamp((t-T_COUNT)/COUNT_DUR),xa=.3;
-  let v=x<xa?1+99*(x/xa):Math.pow(10,2+13*Math.pow((x-xa)/(1-xa),.9));   // 1% → 100% → muito além
-  v=Math.floor(v);
-  const s=v.toLocaleString('pt-BR')+'%';
+  const e=Math.min(t-T_COUNT,COUNT_DUR);
+  let v,idx;
+  if(e<4){v=1+99*(e/4);idx=0}                                   // 1% → 100%
+  else if(e<7.5){v=100+899*((e-4)/3.5);idx=1}                   // 100% → 999%
+  else if(e<11.5){v=Math.pow(10,3+6*((e-7.5)/4));idx=2}         // mil → bilhão
+  else{v=Math.pow(10,9+6*Math.min(1,(e-11.5)/4));idx=3}         // bilhão → quatrilhão
+  const s=Math.floor(v).toLocaleString('pt-BR')+'%';
   num.textContent=s;
   num.style.fontSize=Math.min(88,W*.92/(s.length*.62))+'px';
-  const idx=v<100?0:v<1000?1:v<1e9?2:3;
   if(idx!==lblIdx){
     lblIdx=idx;lbl.style.opacity=0;
     setTimeout(()=>{lbl.textContent=LBL[idx];lbl.style.opacity=.9},350);
@@ -154,6 +161,24 @@ function frame(now){
   for(const s of stars){
     const a=.25+.35*(Math.sin(T*s.tw+s.ph)*.5+.5);
     b.fillStyle=`rgba(255,240,250,${a})`;b.beginPath();b.arc(s.x*W,s.y*H,s.s,0,6.283);b.fill();
+  }
+  const ex=smooth((t-T_EXP)/4.5);
+  if(t>T_EXP){
+    for(const q of sky){
+      const g=smooth((t-T_EXP-q.delay)/1.6);if(g<=0)continue;
+      const a=(.2+.6*(Math.sin(T*q.tw+q.ph)*.5+.5))*g,c=mix(WHITE,q.w<.5?PINK:GOLD,.35);
+      b.fillStyle=`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
+      b.beginPath();b.arc(q.x*W,q.y*H,q.s,0,6.283);b.fill();
+      if(q.s>1.35){b.strokeStyle=`rgba(255,240,248,${a*.6})`;b.lineWidth=.7;const l=q.s*3.4,x=q.x*W,y=q.y*H;
+        b.beginPath();b.moveTo(x-l,y);b.lineTo(x+l,y);b.moveTo(x,y-l);b.lineTo(x,y+l);b.stroke()}
+    }
+    for(let k=0;k<2;k++){            // ondas que saem do infinito
+      const r=(t-T_EXP-k*1.1)/3.2;if(r<=0||r>=1)continue;
+      const sc=1+smooth(r)*.8;
+      b.save();b.strokeStyle=`rgba(255,160,200,${.22*(1-r)})`;b.lineWidth=1.2;b.beginPath();
+      for(let j=0;j<=160;j++){const u=j/160*6.2832,x=CX+A*sc*LX(u),y=CY+A*sc*LY(u);j?b.lineTo(x,y):b.moveTo(x,y)}
+      b.closePath();b.stroke();b.restore();
+    }
   }
   const formed=smooth((t-T_CONV-.6)/2.5);
   if(formed>0){
@@ -204,18 +229,21 @@ function frame(now){
   /* aura de estrelas ao redor do infinito */
   const af=smooth((t-T_CONV-1.2)/3);
   if(af>0){
-    for(const q of aura){
-      const u=q.u+(t-T_CONV)*speed*q.sp;
-      const dx=LX(u+.01)-LX(u-.01),dy=LY(u+.01)-LY(u-.01),L=Math.hypot(dx,dy)||1;
-      const dd=(q.d+Math.sin(T*.8+q.ph)*q.osc)*A;
-      const x=CX+A*LX(u)+(-dy/L)*dd,y=CY+A*LY(u)+(dx/L)*dd;
-      const a=(.15+.55*(Math.sin(T*q.tw+q.ph)*.5+.5))*af;
-      const c=mix(mix(PINK,GOLD,q.w),WHITE,.4);
-      f.fillStyle=`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
-      f.beginPath();f.arc(x,y,q.s,0,6.283);f.fill();
-      if(q.s>1.25){
-        f.strokeStyle=`rgba(255,240,248,${a*.7})`;f.lineWidth=.7;const l=q.s*3.2;
-        f.beginPath();f.moveTo(x-l,y);f.lineTo(x+l,y);f.moveTo(x,y-l);f.lineTo(x,y+l);f.stroke();
+    for(const [list,gain] of [[aura,af],[aura2,ex*af]]){
+      if(gain<=0)continue;
+      for(const q of list){
+        const u=q.u+(t-T_CONV)*speed*q.sp;
+        const dx=LX(u+.01)-LX(u-.01),dy=LY(u+.01)-LY(u-.01),L=Math.hypot(dx,dy)||1;
+        const dd=(q.d*(1+ex*1.5)+Math.sin(T*.8+q.ph)*q.osc)*A;
+        const x=CX+A*LX(u)+(-dy/L)*dd,y=CY+A*LY(u)+(dx/L)*dd;
+        const a=(.15+.55*(Math.sin(T*q.tw+q.ph)*.5+.5))*gain;
+        const c=mix(mix(PINK,GOLD,q.w),WHITE,.4);
+        f.fillStyle=`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
+        f.beginPath();f.arc(x,y,q.s,0,6.283);f.fill();
+        if(q.s>1.25){
+          f.strokeStyle=`rgba(255,240,248,${a*.7})`;f.lineWidth=.7;const l=q.s*3.2;
+          f.beginPath();f.moveTo(x-l,y);f.lineTo(x+l,y);f.moveTo(x,y-l);f.lineTo(x,y+l);f.stroke();
+        }
       }
     }
   }
