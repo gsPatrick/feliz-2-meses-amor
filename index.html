@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2 meses com você 💗</title>
+<meta name="description" content="Uma surpresa de 2 meses">
+<meta name="theme-color" content="#05060f">
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%97%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Dancing+Script:wght@600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#05060f; --bg2:#0d0a22; --bg3:#26103a;
+  --rose:#ff7eb3; --rose2:#ff4d8d; --gold:#ffd98a; --cream:#fff3f0;
+  --glass:rgba(255,255,255,.08); --line:rgba(255,255,255,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+button{touch-action:manipulation}
+html,body{height:100%;height:100dvh}
+body{
+  font-family:'Jost',system-ui,sans-serif; color:var(--cream);
+  background:radial-gradient(120% 90% at 50% 110%,var(--bg3) 0%,var(--bg2) 45%,var(--bg1) 100%) fixed;
+  overflow:hidden;
+}
+body.scene-on #stars{display:none}
+#stars{position:fixed;inset:0;pointer-events:none}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.2;animation:tw 3s infinite ease-in-out}
+@keyframes tw{50%{opacity:.9;transform:scale(1.6)}}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;
+  opacity:0;visibility:hidden;transition:opacity .9s ease,visibility .9s}
+.screen.on{opacity:1;visibility:visible}
+
+/* ---------- INTRO / QUIZ ---------- */
+.script{font-family:'Dancing Script',cursive;color:var(--gold)}
+.card{width:min(520px,100%);background:var(--glass);border:1px solid var(--line);border-radius:28px;
+  padding:34px 26px 28px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center;position:relative;z-index:2}
+.card h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(30px,7vw,42px);line-height:1.15;margin:8px 0 12px}
+.card p.sub{font-weight:300;opacity:.85;line-height:1.6;margin-bottom:24px}
+.btn{font:500 16px 'Jost',sans-serif;color:#2a0f2e;background:linear-gradient(135deg,var(--gold),#ffb3c8);
+  border:0;border-radius:999px;padding:14px 32px;cursor:pointer;box-shadow:0 8px 24px rgba(255,126,179,.35);
+  transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px) scale(1.03)}
+.btn:active{transform:scale(.97)}
+.heart-pulse{font-size:46px;display:inline-block;animation:beat 1.4s infinite}
+@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.2)}30%{transform:scale(1)}45%{transform:scale(1.14)}}
+
+.dots{display:flex;gap:8px;justify-content:center;margin-bottom:22px}
+.dots i{width:28px;height:4px;border-radius:4px;background:rgba(255,255,255,.2);transition:background .4s}
+.dots i.done{background:var(--rose)}
+.q{font-family:'Cormorant Garamond',serif;font-size:clamp(24px,6vw,30px);line-height:1.25;margin-bottom:22px;min-height:2.5em}
+.opts{display:grid;gap:12px}
+.opt{font:400 16px 'Jost',sans-serif;color:var(--cream);background:rgba(255,255,255,.07);border:1px solid var(--line);
+  border-radius:16px;padding:15px 16px;cursor:pointer;transition:all .25s}
+.opt:hover{background:rgba(255,126,179,.2);border-color:var(--rose);transform:translateY(-2px)}
+.opt.good{background:rgba(255,126,179,.35);border-color:var(--rose)}
+.opt.bad{animation:shake .45s;border-color:#ff6b81}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.fb-emoji{font-size:62px;margin:4px 0 12px;animation:beat 1.4s infinite}
+.fb-text{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,5.6vw,27px);line-height:1.4;margin-bottom:26px;min-height:3.8em;display:flex;align-items:center;justify-content:center}
+
+/* ---------- FLOWER SCENE ---------- */
+#scene{justify-content:flex-start;overflow-y:auto;padding:0 16px 60px;z-index:3}
+#flowerWrap{position:fixed;inset:0;z-index:0;pointer-events:none;transition:opacity 2.5s ease}
+#flowerWrap.dim{opacity:.45}
+#flowerWrap iframe{width:100%;height:100%;border:0;display:block;background:#000}
+
+#msg{position:relative;z-index:1;width:min(560px,100%);text-align:center;margin-top:78vh;padding:34px 24px 40px;border-radius:28px;
+  background:rgba(18,5,32,.8);border:1px solid var(--line);
+  opacity:0;transition:opacity 2s ease}
+#msg.on{opacity:1}
+#msg h2{font-family:'Dancing Script',cursive;color:var(--gold);font-size:clamp(38px,10vw,56px);line-height:1.1;margin-bottom:6px}
+#msg .date{font-weight:300;letter-spacing:.35em;font-size:12px;text-transform:uppercase;opacity:.7;margin-bottom:22px}
+#msg p{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,5vw,24px);line-height:1.55;margin-bottom:18px;
+  opacity:0;transform:translateY(14px);transition:opacity 1.4s ease,transform 1.4s ease;text-shadow:0 2px 14px rgba(0,0,0,.45)}
+#msg p.em{font-style:italic;color:#ffd0e0}
+#msg .show{opacity:1!important;transform:none!important}
+#msg h2,#msg .date{opacity:0;transition:opacity 1.6s}
+#msg .head-on{opacity:1}
+#more{margin-top:16px;opacity:0;pointer-events:none;transition:opacity 1s}
+#more.on{opacity:1;pointer-events:auto}
+.sign{font-family:'Dancing Script',cursive;font-size:30px;color:var(--rose);opacity:0;transition:opacity 1.4s}
+.sign.show{opacity:1}
+
+#msg{pointer-events:none}
+#msg.on{pointer-events:auto}
+#back{position:absolute;top:12px;right:14px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.08);color:var(--cream);font-size:15px;cursor:pointer}
+#bar{position:fixed;left:0;right:0;bottom:calc(26px + env(safe-area-inset-bottom));z-index:6;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;padding:0 12px;
+  opacity:0;pointer-events:none;transition:opacity 1.4s ease}
+#bar.on{opacity:1;pointer-events:auto}
+#bar .btn.ghost{background:rgba(255,255,255,.12);color:var(--cream);border:1px solid var(--line);box-shadow:none}
+#bar .btn:disabled{opacity:.55;cursor:default;transform:none}
+#open.hide{display:none}
+@media (max-width:520px){
+  .screen{padding:16px 12px}
+  .card{padding:28px 18px 24px;border-radius:24px}
+  .opt{padding:14px;font-size:15.5px}
+  #msg{padding:30px 18px 34px;margin-top:70vh;border-radius:24px}
+  #bar .btn{font-size:15px;padding:13px 22px}
+}
+.petal-fall{position:fixed;top:-20px;width:12px;height:16px;border-radius:70% 0 70% 0;background:linear-gradient(135deg,#ffc2d9,#ff6fa5);
+  opacity:.8;pointer-events:none;z-index:4;animation:fall linear forwards}
+@keyframes fall{to{transform:translate(var(--dx),110vh) rotate(720deg);opacity:.2}}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+
+<!-- INTRO -->
+<section class="screen on" id="intro">
+  <div class="card">
+    <div class="heart-pulse">💗</div>
+    <h1>Amor, eu preparei<br>uma coisinha pra você</h1>
+    <p class="sub">Mas antes, um quiz rapidinho.<br>Prometo que é fácil… <span style="opacity:.7">quase.</span></p>
+    <button class="btn" id="start">Vamos lá</button>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="screen" id="quiz">
+  <div class="card">
+    <div class="dots" id="dots"></div>
+    <div class="q" id="q"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+</section>
+
+<!-- CONFIRMAÇÃO DA RESPOSTA -->
+<section class="screen" id="fbk">
+  <div class="card">
+    <div class="dots" id="dots2"></div>
+    <div class="fb-emoji" id="fbE"></div>
+    <p class="fb-text" id="fbT"></p>
+    <button class="btn" id="fbB"></button>
+  </div>
+</section>
+
+<!-- FLOWER + MENSAGEM -->
+<section class="screen" id="scene">
+  <div id="flowerWrap"></div>
+
+  <div id="msg">
+    <button id="back" aria-label="Voltar pra flor">✕</button>
+    <h2 id="h2">Feliz 2 meses</h2>
+    <div class="date" id="dt">hoje &nbsp;·&nbsp; para você</div>
+    <p>Amor, hoje a gente completa 2 meses, e eu queria que você soubesse que você foi a melhor escolha que eu já fiz.</p>
+    <p>Você deixou a minha vida mais feliz, mais leve, mais bonita. Do seu lado, até os dias comuns viram dias bons.</p>
+    <p>Eu sei que ainda não sou perfeito, e sinto muito pelas vezes em que falho. Mas eu me esforço todos os dias pra ser alguém melhor, porque você merece o meu melhor.</p>
+    <p>Obrigado por ser essa pessoa incrível comigo, por cada carinho, por cada risada, por simplesmente ser você.</p>
+    <p class="em">Eu te amo muito. E eu quero, sim, me casar com você, construir a minha vida com você, ter os nossos filhos, a nossa casa, e viver o resto da minha vida ao seu lado.</p>
+    <div class="sign" id="sign">Feliz 2 meses, meu amor 💛</div>
+  </div>
+  <div id="bar"><button class="btn" id="open">Ver mensagem fofa 💌</button><button class="btn ghost" id="fire">Fogos 🎆</button></div>
+</section>
+
+<script>
+/* ---------- estrelas ---------- */
+(function(){
+  const s=document.getElementById('stars');
+  for(let i=0;i<90;i++){
+    const d=document.createElement('div');d.className='star';
+    d.style.left=Math.random()*100+'%';d.style.top=Math.random()*100+'%';
+    d.style.animationDelay=Math.random()*3+'s';d.style.animationDuration=2+Math.random()*3+'s';
+    s.appendChild(d);
+  }
+})();
+
+/* ---------- jardim (iframe com garden.html) ---------- */
+const Flower={start(cb){
+  const f=document.createElement('iframe');
+  f.src='garden.html';f.title='Jardim';f.setAttribute('aria-hidden','true');
+  document.getElementById('flowerWrap').appendChild(f);
+  setTimeout(cb,7500);
+}};
+
+/* ---------- fogos (rodam dentro do jardim, atrás das flores) ---------- */
+let showing=false;
+const gardenWin=()=>{const f=document.querySelector('#flowerWrap iframe');return f&&f.contentWindow};
+function fireworksShow(){
+  if(showing)return;showing=true;
+  const btn=document.getElementById('fire');btn.disabled=true;
+  const gw=gardenWin();if(gw)gw.postMessage({type:'fire'},'*');
+  setTimeout(()=>{showing=false;btn.disabled=false},10500);
+}
+addEventListener('pointerdown',e=>{
+  if(document.getElementById('scene').classList.contains('on')&&!e.target.closest('button')){
+    const gw=gardenWin();if(gw)gw.postMessage({type:'tap',x:e.clientX,y:e.clientY},'*');
+  }
+});
+
+/* ---------- pétalas caindo ---------- */
+function fallingPetal(){
+  const p=document.createElement('div');p.className='petal-fall';
+  p.style.left=Math.random()*100+'vw';
+  p.style.setProperty('--dx',(Math.random()*160-80)+'px');
+  p.style.animationDuration=(7+Math.random()*6)+'s';
+  p.style.transform=`scale(${.7+Math.random()*.8})`;
+  document.body.appendChild(p);setTimeout(()=>p.remove(),14000);
+}
+
+/* ---------- quiz ---------- */
+const QUIZ=[
+  {q:'Há quanto tempo a gente está juntos hoje?',o:[
+    ['1 mês',0,'Quase, amor… mas a gente já está bem além disso 🥹'],
+    ['2 meses 💗',1,'Isso! 2 meses de muito amor, risada e carinho.'],
+    ['3 meses',0,'Ainda não, vida! Calma que a gente chega lá, um dia de cada vez 💞']]},
+  {q:'Quem ama mais nessa relação?',o:[
+    ['Eu',1,'Eu te amo muito muito mais 😤 (brincadeira, amor… a gente se ama igual 💞)'],
+    ['Eu',1,'Eu te amo muito muito mais 😤 (brincadeira, amor… a gente se ama igual 💞)'],
+    ['Nós amamos igual 💞',1,'Exatamente. A gente se ama no mesmo tamanho, do mesmo jeito 💞']]},
+  {q:'Qual foi a melhor escolha que eu já fiz na vida?',o:[
+    ['Dormir mais cedo 😴',0,'Até ajudou, mas não é essa 😂 Tenta de novo, amor!'],
+    ['Pedir pizza 🍕',0,'Boa escolha, mas ainda não foi a melhor 🍕'],
+    ['Escolher você 💘',1,'Resposta certa. Foi a escolha mais fácil e a melhor da minha vida 🥹']]},
+  {q:'Tá pronta pra ver a surpresa?',o:[
+    ['Siiim! 💛',1,'Então vem comigo… eu preparei com muito carinho ✨'],
+    ['Já tô emocionada 🥹',1,'Ainda nem começou, amor 💗']]}
+];
+let qi=0,lock=false;
+const $=id=>document.getElementById(id);
+function go(from,to){$(from).classList.remove('on');setTimeout(()=>$(to).classList.add('on'),600)}
+$('start').onclick=()=>{go('intro','quiz');renderQ()};
+const dotsHTML=n=>QUIZ.map((_,i)=>`<i class="${i<n?'done':''}"></i>`).join('');
+function renderQ(){
+  lock=false;const d=QUIZ[qi];
+  $('dots').innerHTML=dotsHTML(qi);
+  $('q').textContent=d.q;$('opts').innerHTML='';
+  d.o.forEach(([t,ok,msg])=>{
+    const b=document.createElement('button');b.className='opt';b.textContent=t;
+    b.onclick=()=>{
+      if(lock)return;lock=true;
+      b.classList.add(ok?'good':'bad');
+      setTimeout(()=>showFeedback(ok,msg),ok?450:550);
+    };
+    $('opts').appendChild(b);
+  });
+}
+function showFeedback(ok,msg){
+  const last=qi===QUIZ.length-1;
+  $('dots2').innerHTML=dotsHTML(ok?qi+1:qi);
+  $('fbE').textContent=ok?'💗':'🙈';
+  $('fbT').textContent=msg;
+  $('fbB').textContent=ok?(last?'Ver a surpresa ✨':'Continuar 💗'):'Tentar de novo';
+  $('fbB').onclick=()=>{
+    $('fbB').onclick=null;
+    if(!ok){go('fbk','quiz');renderQ();return}
+    qi++;
+    if(qi<QUIZ.length){go('fbk','quiz');renderQ()}else reveal('fbk');
+  };
+  go('quiz','fbk');
+}
+
+/* ---------- revelação ---------- */
+function reveal(from){
+  go(from||'quiz','scene');
+  document.body.classList.add('scene-on');
+  setTimeout(()=>Flower.start(()=>$('bar').classList.add('on')),900);
+}
+let petalsOn=false;
+function openMsg(){
+  $('open').classList.add('hide');
+  $('flowerWrap').classList.add('dim');
+  const m=$('msg');
+  m.querySelectorAll('p,.sign').forEach(e=>e.classList.add('show'));
+  $('h2').classList.add('head-on');$('dt').classList.add('head-on');
+  m.classList.add('on');
+  setTimeout(()=>m.scrollIntoView({behavior:'smooth',block:'start'}),300);
+  if(!petalsOn){petalsOn=true;setInterval(fallingPetal,1500)}
+}
+function closeMsg(){
+  $('msg').classList.remove('on');$('flowerWrap').classList.remove('dim');
+  $('scene').scrollTo({top:0,behavior:'smooth'});
+  $('open').textContent='Ver mensagem de novo 💌';$('open').classList.remove('hide');
+}
+$('open').onclick=openMsg;
+$('back').onclick=closeMsg;
+$('fire').onclick=fireworksShow;
+</script>
+</body>
+</html>
